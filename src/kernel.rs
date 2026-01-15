@@ -2,30 +2,46 @@ use crate::tensor::HyperTensor;
 use crate::contract::Contract;
 use crate::ops::Operator;
 use anyhow::Result;
+use std::collections::HashMap;
+use std::sync::RwLock;
 
 pub struct NeuralKernel {
     pub device: candle_core::Device,
+    // 持久化記憶體池：Key 為槽位名稱，Value 為張量
+    pub memory: RwLock<HashMap<String, candle_core::Tensor>>,
 }
 
 impl NeuralKernel {
     pub fn new() -> Self {
-        Self { device: candle_core::Device::Cpu }
+        Self { 
+            device: candle_core::Device::Cpu,
+            memory: RwLock::new(HashMap::new()),
+        }
     }
 
-    // 核心遞歸執行器
     fn run_step(&self, mut data: candle_core::Tensor, program: Vec<Operator>) -> Result<candle_core::Tensor> {
         for op in program {
             match op {
+                Operator::Store(key) => {
+                    let mut mem = self.memory.write().unwrap();
+                    mem.insert(key.clone(), data.clone());
+                    println!("    --> [Memory] Stored tensor to slot: '{}'", key);
+                }
+                Operator::Load(key) => {
+                    let mem = self.memory.read().unwrap();
+                    if let Some(saved_tensor) = mem.get(&key) {
+                        data = saved_tensor.clone();
+                        println!("    --> [Memory] Loaded tensor from slot: '{}'", key);
+                    } else {
+                        anyhow::bail!("Memory Error: Slot '{}' is empty", key);
+                    }
+                }
                 Operator::Branch { threshold, true_path, false_path } => {
-                    // 計算目前張量的平均值作為決策依據
                     let mean = data.mean_all()?.to_scalar::<f32>()?;
-                    println!("--> [Decision] Current Mean: {:.4}, Threshold: {}", mean, threshold);
-
+                    println!("--> [Decision] Mean: {:.4}, Threshold: {}", mean, threshold);
                     if mean > threshold {
-                        println!("    Path: TRUE_PATH (Mean > Threshold)");
                         data = self.run_step(data, true_path)?;
                     } else {
-                        println!("    Path: FALSE_PATH (Mean <= Threshold)");
                         data = self.run_step(data, false_path)?;
                     }
                 }
@@ -44,23 +60,18 @@ impl NeuralKernel {
         contract: Contract,
         program: Vec<Operator>,
     ) -> Result<HyperTensor> {
-        // 1. 初始驗證 (只檢查形狀)
         if input.data.dims() != contract.expected_shape {
             anyhow::bail!("Input shape mismatch");
         }
 
-        // 2. 遞歸執行指令流
         let final_data = self.run_step(input.data, program)?;
 
-        // 3. 封裝輸出
         let output = HyperTensor {
             data: final_data,
             label: "output".to_string(),
         };
 
-        // 4. 最終驗證 (包含數學不變量)
         contract.verify(&output)?;
-
         Ok(output)
     }
 }

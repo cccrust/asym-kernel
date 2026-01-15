@@ -1,5 +1,5 @@
 use anyhow::Result;
-use candle_core::Tensor; // 移除 DType
+use candle_core::Tensor;
 
 #[derive(Debug, Clone)]
 pub enum Operator {
@@ -13,6 +13,10 @@ pub enum Operator {
         true_path: Vec<Operator>,
         false_path: Vec<Operator>,
     },
+    // 新增：儲存當前張量到指定的 Key
+    Store(String),
+    // 新增：從指定的 Key 加載張量並替換當前張量
+    Load(String),
 }
 
 impl Operator {
@@ -32,8 +36,8 @@ impl Operator {
                 let sorted_indices = tensor.arg_sort_last_dim(true)?;
                 Ok(tensor.gather(&sorted_indices, 0)?)
             }
-            // Branch 由 Kernel 的 run_step 處理，這裡直接回傳
-            Operator::Branch { .. } => Ok(tensor),
+            // Branch, Store, Load 由 Kernel 執行流程控制，apply 階段直接回傳
+            _ => Ok(tensor),
         }
     }
 }
