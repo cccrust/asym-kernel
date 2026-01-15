@@ -1,4 +1,3 @@
-cargo run --example run_sort
-cargo run --example run_branch
-cargo run --example run_memory
-cargo run --example run_optimize
+cargo run --example asym_vm -- asym/run_sort.asym
+cargo run --example asym_vm -- asym/run_normalize.asym
+cargo run --example asym_vm -- asym/run_evolve.asym

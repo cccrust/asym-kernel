@@ -1,5 +1,6 @@
 use candle_core::{Device, Tensor};
 
+#[derive(Clone)] 
 pub struct HyperTensor {
     pub data: Tensor,
     pub label: String, // 用於語義追蹤
