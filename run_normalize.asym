@@ -1,0 +1,9 @@
+@C [3]
+
+@L
+  Square
+  AddScalar: 10.0
+  Normalize
+
+@V
+  MeanEquals: 0.0

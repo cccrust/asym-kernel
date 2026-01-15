@@ -4,6 +4,7 @@ pub mod tensor;
 pub mod contract;
 pub mod ops;
 pub mod kernel;
+pub mod loader;
 
 // 2. 重新導出 (Public Re-exports)
 // 這樣使用者只需要寫 `use asym_kernel::NeuralKernel` 
