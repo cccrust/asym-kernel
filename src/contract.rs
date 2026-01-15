@@ -1,9 +1,11 @@
 use crate::tensor::HyperTensor;
 use anyhow::{Result, bail};
+use std::sync::Arc; // 引入 Arc
 
 pub struct Contract {
     pub expected_shape: Vec<usize>,
-    pub invariant: Box<dyn Fn(&HyperTensor) -> bool + Send + Sync>,
+    // 將 Box 換成 Arc，這樣它就可以被輕鬆複製
+    pub invariant: Arc<dyn Fn(&HyperTensor) -> bool + Send + Sync>,
 }
 
 impl Contract {
@@ -15,5 +17,15 @@ impl Contract {
             bail!("Formal Verification Failed: Invariant violation.");
         }
         Ok(())
+    }
+}
+
+// 手動實作 Clone
+impl Clone for Contract {
+    fn clone(&self) -> Self {
+        Self {
+            expected_shape: self.expected_shape.clone(),
+            invariant: Arc::clone(&self.invariant),
+        }
     }
 }
