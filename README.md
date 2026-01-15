@@ -46,6 +46,22 @@ Final High Result: [-1.2247449, 0.0, 1.2247449]
 Final Low Result: [1.0, 4.0, 9.0]
 ```
 
+測試： [run_memory.rs](./examples/run_memory.rs)
+
+```
+(py310) cccimac@cccimacdeiMac asym-kernel % cargo run --example run_memory
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running `target/debug/examples/run_memory`
+--- Task A: Process and Store ---
+    Executing: Square
+    --> [Memory] Stored tensor to slot: 'feature_01'
+
+--- Task B: Load and Finalize ---
+    --> [Memory] Loaded tensor from slot: 'feature_01'
+    Executing: Normalize
+Final Result from Memory: [-1.1111674, -0.20203052, 1.3131976]
+```
+
 ## 人類評論
 
 我想，或許很快，AI 會設計出
