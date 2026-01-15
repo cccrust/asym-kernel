@@ -4,10 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-# 更新到較新的版本，這會解決與 rand 0.9 的衝突
-candle-core = "0.8.0" 
-candle-nn = "0.8.0"
-tokio = { version = "1.37", features = ["full"] } # 更新 tokio
+candle-core = "0.8.4"
+candle-nn = "0.8.4"
+# 如果你需要直接操作 safetensors 的底層結構，可以單獨加上這行
+# 但目前我們透過 candle_core 呼叫即可
+tokio = { version = "1.37", features = ["full"] }
 thiserror = "1.0"
 anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
