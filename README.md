@@ -12,24 +12,38 @@
 
 ## 測試執行 (run)
 
+測試： [run_sort.rs](examples/run_sort.rs)
+
 ```
 (py310) cccimac@cccimacdeiMac asym-kernel % cargo run --example run_sort
-warning: unused import: `DType`
- --> src/ops.rs:2:27
-  |
-2 | use candle_core::{Tensor, DType};
-  |                           ^^^^^
-  |
-  = note: `#[warn(unused_imports)]` on by default
-
-warning: `asym-kernel` (lib) generated 1 warning (run `cargo fix --lib -p asym-kernel` to apply 1 suggestion)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.25s
+   Compiling asym-kernel v0.1.0 (/Users/cccimac/Desktop/ccc/project/asym-kernel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.56s
      Running `target/debug/examples/run_sort`
 --- A-Sym Matrix Sort Test ---
 Input (Unsorted): [5.0, 1.0, 4.0, 2.0, 3.0]
-Executing Op: MatrixSort
+    Executing: MatrixSort
 Output (Sorted):   [1.0, 2.0, 3.0, 4.0, 5.0]
 Verification: PASSED
+```
+
+測試： [run_branch.rs](examples/run_branch.rs)
+
+```
+(py310) cccimac@cccimacdeiMac asym-kernel % cargo run --example run_branch
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.22s
+     Running `target/debug/examples/run_branch`
+--- Scenario 1: High Mean Data (100, 200, 300) ---
+--> [Decision] Current Mean: 200.0000, Threshold: 50
+    Path: TRUE_PATH (Mean > Threshold)
+    Executing: Normalize
+Final High Result: [-1.2247449, 0.0, 1.2247449]
+
+--- Scenario 2: Low Mean Data (1, 3, 2) ---
+--> [Decision] Current Mean: 2.0000, Threshold: 50
+    Path: FALSE_PATH (Mean <= Threshold)
+    Executing: Square
+    Executing: MatrixSort
+Final Low Result: [1.0, 4.0, 9.0]
 ```
 
 ## 人類評論
