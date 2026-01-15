@@ -1,0 +1,13 @@
+[package]
+name = "asym-kernel"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# 更新到較新的版本，這會解決與 rand 0.9 的衝突
+candle-core = "0.8.0" 
+candle-nn = "0.8.0"
+tokio = { version = "1.37", features = ["full"] } # 更新 tokio
+thiserror = "1.0"
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
