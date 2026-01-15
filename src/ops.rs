@@ -7,16 +7,15 @@ pub enum Operator {
     Softmax,
     AddScalar(f32),
     Normalize,
-    MatrixSort,
+    MatrixSort, // 確保它在這裡
     Branch {
         threshold: f32,
         true_path: Vec<Operator>,
         false_path: Vec<Operator>,
     },
-    // 新增：儲存當前張量到指定的 Key
     Store(String),
-    // 新增：從指定的 Key 加載張量並替換當前張量
     Load(String),
+    AddParam(String),
 }
 
 impl Operator {
@@ -32,11 +31,13 @@ impl Operator {
                 let std = var.affine(1.0, 1e-5)?.sqrt()?;
                 Ok(centered.broadcast_div(&std)?)
             }
+            // 這裡最重要！必須明確處理 MatrixSort
             Operator::MatrixSort => {
                 let sorted_indices = tensor.arg_sort_last_dim(true)?;
-                Ok(tensor.gather(&sorted_indices, 0)?)
+                // 在 1D 張量中使用 index_select 是最穩定的做法
+                Ok(tensor.index_select(&sorted_indices, 0)?)
             }
-            // Branch, Store, Load 由 Kernel 執行流程控制，apply 階段直接回傳
+            // 其他由 Kernel 處理的算子回傳原張量
             _ => Ok(tensor),
         }
     }
